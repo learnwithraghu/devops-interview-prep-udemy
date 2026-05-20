@@ -146,15 +146,16 @@ make push    # docker push <your-dockerhub>/k8s-debug-app:v1
 
 ## Per-Scenario Folder Structure
 
-Every scenario folder contains **production-ready files for live editing**:
+Every scenario folder contains **exactly 3 files for live editing**:
 
 ```
 section-01-kubernetes-core/01-crashloop-oom-killed/
-├── README.md                 # Scenario overview & setup instructions
-├── DEBUG.md                  # Step-by-step debugging guide with vim/sed tricks
-├── deployment.yaml           # Live editable manifest (starts in broken state)
-└── Makefile                  # Optional: quick commands (deploy, describe, logs, fix)
+├── README.md              # Scenario overview & learning outcomes
+├── DEBUG.md               # Step-by-step debugging guide
+└── deployment.yaml        # Live editable manifest (starts in broken state)
 ```
+
+No Makefiles—students learn by typing real `kubectl` commands.
 
 ### Teaching Workflow (All Scenarios Follow This Pattern)
 
@@ -269,7 +270,7 @@ kubectl describe pod $(kubectl get pods -l app=oom-demo -o jsonpath='{.items[0].
    - Single `deployment.yaml` (or `Chart.yaml`) starting in broken state
    - `README.md` with clear problem description
    - `DEBUG.md` with simple, copy-paste kubectl commands (no one-liners)
-   - `Makefile` for optional quick shortcuts
+   - No scenario Makefiles; students learn by typing actual commands
    - Comments marking the problem area in the manifest
 5. Test each scenario end-to-end on AWS EC2 t3.2xlarge
 6. Record videos showing **realistic live debugging** — students learn how you actually think through problems
