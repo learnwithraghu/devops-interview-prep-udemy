@@ -1,0 +1,4 @@
+apiVersion: v2
+name: debug-chart
+description: A debug chart for scenario 07
+version: 0.1.0

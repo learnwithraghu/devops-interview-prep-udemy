@@ -179,7 +179,7 @@ No Makefiles—students learn by typing real `kubectl` commands.
 ### File Organization (For All Scenarios)
 
 - **`README.md`** — Scenario overview
-  - Clear problem description in 1–2 sentences
+  - **Interview Problem Statement** — A short narrative prompt (2–3 sentences max) setting the on-call or interview scene. It should describe the **symptoms** the candidate sees (e.g., Pod is crashlooping, service is unreachable) without naming the root cause, exit codes, or specific Kubernetes events. The candidate must deduce the issue. Format: *"We deployed X, and Y is happening... Walk me through how you would figure out what's going on and how you'd fix it."*
   - Difficulty level (⭐ to ⭐⭐⭐)
   - Learning outcomes
   - Prerequisites (AWS EC2 specs if needed)
@@ -193,8 +193,8 @@ No Makefiles—students learn by typing real `kubectl` commands.
     kubectl logs <pod-name>
     ```
   - **Root cause analysis:** Explain what you found
-  - **The fix:** Show the exact YAML lines to change
-  - **Editing options:** Vim, Sed, or Nano (pick your preference, don't over-complicate)
+  - **The fix:** Show the exact YAML lines to change, with surrounding context so the instructor knows where to navigate in the file. For Helm scenarios (Section 02), always show a block of the file before and after the change so the edit location is unambiguous. **Highlight the changed line(s)** using an inline marker like `# <-- EDIT THIS LINE` so the exact edit is visually obvious during prep.
+  - **Editing options:** Vim or Nano only. Do not include `sed` one-liners — live editing should be visible and methodical.
   - **Verification:** Run describe/logs again to confirm fix
   - **Editor tips for large files:** 
     - Search in vim: `/pattern` → press `n` for next
@@ -205,8 +205,8 @@ No Makefiles—students learn by typing real `kubectl` commands.
 
 - **`deployment.yaml`** (or `Chart.yaml` + `values.yaml` for Helm)
   - **Starts in broken state** — Deploy it, watch it fail
-  - **Clear comments** marking the problem area with `❌` symbols
-  - **Include context** showing both problem and solution (for reference after recording)
+  - **Clean manifest — NO fix hints, NO ❌/✅ symbols, NO explanatory comments** that reveal the issue. The file must look like a real manifest you would show in a live demo or interview. Students should not be able to spot the bug by reading the YAML.
+  - All root-cause explanations, before/after diffs, and fix instructions belong exclusively in `DEBUG.md`
 
 ---
 

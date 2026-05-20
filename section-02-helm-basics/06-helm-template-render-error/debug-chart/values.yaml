@@ -1,0 +1,10 @@
+replicaCount: 1
+
+image:
+  repository: local/k8s-debug-app
+  tag: v1
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 8080

@@ -158,7 +158,7 @@ resources:
     memory: "64Mi"
 ```
 
-Pick any of these three methods:
+Pick any of these two methods:
 
 ### Option 1: Vim (Interactive)
 
@@ -167,26 +167,21 @@ vim deployment.yaml
 ```
 
 1. Search for the problem: Press `/` then type `64Mi` and press Enter
-2. Navigate to the line with `memory: "64Mi"` 
+2. Navigate to the line:
+   ```yaml
+       memory: "64Mi"    # <-- EDIT THIS LINE
+   ```
 3. Press `i` to enter insert mode
 4. Change `"64Mi"` to `"256Mi"`
-5. Find and edit the `"32Mi"` request line to `"64Mi"`
+5. Find the next `32Mi` line:
+   ```yaml
+       memory: "32Mi"    # <-- ALSO EDIT THIS LINE
+   ```
+6. Change `"32Mi"` to `"64Mi"`
 6. Press `Esc` to exit insert mode
 7. Save: `:wq`
 
-### Option 2: Sed (One-liner, fastest)
-
-```bash
-sed -i 's/memory: "64Mi"/memory: "256Mi"/g' deployment.yaml
-sed -i 's/memory: "32Mi"/memory: "64Mi"/g' deployment.yaml
-```
-
-Verify:
-```bash
-grep "memory:" deployment.yaml
-```
-
-### Option 3: Nano (Simplest)
+### Option 2: Nano (Simplest)
 
 ```bash
 nano deployment.yaml
@@ -353,7 +348,7 @@ Setting correct limits prevents runaway processes from crashing entire nodes."
 "Notice how we:
 1. **Identified** the issue with `describe` and logs (2 commands)
 2. **Located** the problem in the YAML (vim search)
-3. **Fixed** it directly (one sed/vim edit)
+3. **Fixed** it directly (one vim edit)
 4. **Applied** the fix (kubectl apply)
 5. **Verified** it works (describe + logs)
 

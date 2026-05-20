@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: oom-demo
+  name: svc-demo
   labels:
-    app: oom-demo
+    app: svc-demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: oom-demo
+      app: svc-demo
   template:
     metadata:
       labels:
-        app: oom-demo
+        app: svc-demo
     spec:
       containers:
         - name: app
@@ -20,11 +20,16 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              memory: "64Mi"
-            requests:
-              memory: "32Mi"
-          env:
-            - name: OOM_ALLOCATE_MB
-              value: "128"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-demo
+  labels:
+    app: svc-demo
+spec:
+  selector:
+    app: web-app
+  ports:
+    - port: 80
+      targetPort: 80

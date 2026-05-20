@@ -1,18 +1,18 @@
-# Scenario 01: CrashLoopBackOff - OOMKilled
+# Scenario 02: CrashLoopBackOff - Wrong Command
 
 ## Interview Problem Statement
 
-> **Interviewer:** "We deployed a service to our Kubernetes cluster, but the Pod keeps restarting over and over. It starts up for a few seconds and then dies. There's no obvious error in the application logs before it goes down. The team says the same image was running fine in a local container with more memory. You have the `deployment.yaml` manifest and access to the cluster. Walk me through how you would figure out what's happening and how you'd fix it."
+> **Interviewer:** "A developer deployed a new version of an application using a Kubernetes Deployment. The Pod is stuck in `CrashLoopBackOff` and the container exits immediately on startup. The developer is insisting the container image is fine because it runs perfectly with `docker run` on their laptop. You have the `deployment.yaml` and cluster access. How would you troubleshoot this, and what would you change to fix it?"
 
 ## Difficulty
 ⭐ Beginner — 2 debug commands + 1 manifest edit
 
 ## Learning Outcomes
-- Understand memory limits vs. requests in Kubernetes
-- Recognize OOMKilled errors and exit code 137 (SIGKILL)
-- Use `kubectl describe pod` and `kubectl logs` to diagnose memory issues
+- Understand how `command` and `args` override a container's default entrypoint
+- Recognize exit code 127 (command not found)
+- Use `kubectl describe pod` and `kubectl logs` to diagnose startup failures
 - Edit manifests live and apply changes using `kubectl apply`
-- Understand resource constraints on AWS EC2 t3.2xlarge instances
+- Know when to override vs. rely on the image's built-in `ENTRYPOINT`
 
 ## Prerequisites
 
@@ -36,24 +36,24 @@ docker images | grep k8s-debug-app
 ## Deploy the Broken State
 
 ```bash
-cd section-01-kubernetes-core/01-crashloop-oom-killed
+cd section-01-kubernetes-core/02-crashloop-wrong-command
 kubectl apply -f deployment.yaml
 ```
 
 ## Expected Behavior
 
-The Pod will start and immediately be killed with status `OOMKilled`, then enter `CrashLoopBackOff`:
+The Pod will start and immediately crash with status `Error`, then enter `CrashLoopBackOff`:
 
 ```bash
 $ kubectl get pods
 NAME                        READY   STATUS             RESTARTS   AGE
-oom-demo-xxx-yyy           0/1     CrashLoopBackOff   3          45s
+wrong-cmd-demo-xxx-yyy     0/1     CrashLoopBackOff   3          45s
 
-$ kubectl describe pod oom-demo-xxx-yyy
+$ kubectl describe pod wrong-cmd-demo-xxx-yyy
 ...
     Last State:     Terminated
-      Reason:       OOMKilled
-      Exit Code:    137
+      Reason:       Error
+      Exit Code:    127
 ```
 
 ## Debugging & Live Fixing
@@ -74,7 +74,7 @@ Follow [DEBUG.md](DEBUG.md) for:
 ### Resource Headroom on AWS EC2
 - t3.2xlarge has 32 GB RAM
 - kind control-plane uses ~2-4 GB  
-- This scenario uses <500 MB after fix
+- This scenario uses minimal resources (<100 MB)
 - Plenty of headroom for multiple scenarios per instance
 
 ### Editing Approach
