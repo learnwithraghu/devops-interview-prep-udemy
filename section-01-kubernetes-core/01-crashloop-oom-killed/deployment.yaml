@@ -20,11 +20,13 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
+          # ISSUE: Memory limit is too low for the allocation request below
           resources:
             limits:
-              memory: "256Mi"
+              memory: "64Mi"      # ❌ PROBLEM: Too small, will cause OOMKilled
             requests:
-              memory: "64Mi"
+              memory: "32Mi"
           env:
+            # This app will try to allocate 128MB on startup
             - name: OOM_ALLOCATE_MB
-              value: "128"
+              value: "128"        # Will exceed the 64Mi limit above

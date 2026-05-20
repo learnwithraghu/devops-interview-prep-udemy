@@ -1,8 +1,11 @@
 # Course Plan: Real-World Kubernetes & Helm Debugging
 
 ## Overview
-A hands-on, local-only video course focused on live scenario-based debugging. Every scenario runs on **Rancher Desktop, Docker Desktop, or Kind** with zero external cloud dependencies.  
-The course is divided into **4 sections of 5 videos each**, with a deliberate difficulty curve inside every section.
+A hands-on video course focused on live scenario-based debugging and hands-on fixing. Every scenario runs on:
+- **Local:** Rancher Desktop, Docker Desktop, or Kind (zero cloud dependencies)
+- **AWS EC2:** t3.2xlarge instances with Amazon Linux 2 (30 GB storage) — recommended for team training and production-like environments
+
+The course is divided into **4 sections of 5 videos each**, with a deliberate difficulty curve inside every section. The teaching approach emphasizes **live editing** — students watch you identify the issue in YAML files, then use editor tricks (vim, sed, etc.) to fix them in real-time. You'll roll out fixes progressively, showing debugging workflow and deployment strategies.
 
 **Difficulty convention**
 - ⭐ **Beginner** — 1 to 2 debug commands to find the root cause.
@@ -141,18 +144,132 @@ make push    # docker push <your-dockerhub>/k8s-debug-app:v1
 
 ---
 
-## Per-Scenario Folder Contents
+## Per-Scenario Folder Structure
 
-Every folder contains:
-- `broken/` — manifests or Helm chart that deploys the bug
-- `fixed/` — manifests or Helm chart with the correction
-- `README.md` — one-paragraph description + exact deploy commands (run **before** recording)
-- `DEBUG.md` — numbered debug steps, expected CLI output snippets, and instructor talking points (used **during** recording)
+Every scenario folder contains **production-ready files for live editing**:
+
+```
+section-01-kubernetes-core/01-crashloop-oom-killed/
+├── README.md                 # Scenario overview & setup instructions
+├── DEBUG.md                  # Step-by-step debugging guide with vim/sed tricks
+├── deployment.yaml           # Live editable manifest (starts in broken state)
+└── Makefile                  # Optional: quick commands (deploy, describe, logs, fix)
+```
+
+### Teaching Workflow (All Scenarios Follow This Pattern)
+
+1. **Before Recording:** Deploy the broken state
+   ```bash
+   kubectl apply -f deployment.yaml
+   ```
+
+2. **During Recording:** Use **simple, real-world commands**
+   - Get resource names first: `kubectl get pods` (copy pod name from output)
+   - Describe using the actual name: `kubectl describe pod oom-demo-xxxxx`
+   - View logs with pod name: `kubectl logs oom-demo-xxxxx`
+   - **No complex one-liners** — this is how real debugging works
+   - Identify the root cause in the output
+   - Edit the manifest **live** using vim, sed, or nano (show your editing process)
+   - Apply the fix: `kubectl apply -f deployment.yaml`
+   - Verify: `kubectl get pods` and watch the pod become healthy
+
+3. **After Recording:** Keep the fixed version for the next student/team
+
+### File Organization (For All Scenarios)
+
+- **`README.md`** — Scenario overview
+  - Clear problem description in 1–2 sentences
+  - Difficulty level (⭐ to ⭐⭐⭐)
+  - Learning outcomes
+  - Prerequisites (AWS EC2 specs if needed)
+  - Deploy command: `kubectl apply -f deployment.yaml`
+
+- **`DEBUG.md`** — The instructor's step-by-step script
+  - **Step 1–3:** Simple debugging commands (get, describe, logs)
+    ```bash
+    kubectl get pods
+    kubectl describe pod <pod-name>  # Copy pod name from previous step
+    kubectl logs <pod-name>
+    ```
+  - **Root cause analysis:** Explain what you found
+  - **The fix:** Show the exact YAML lines to change
+  - **Editing options:** Vim, Sed, or Nano (pick your preference, don't over-complicate)
+  - **Verification:** Run describe/logs again to confirm fix
+  - **Editor tips for large files:** 
+    - Search in vim: `/pattern` → press `n` for next
+    - Jump to line: `vim +20 deployment.yaml`
+    - Use grep to find lines first: `grep -n "keyword" deployment.yaml`
+    - Compare changes: `diff -u backup.yaml deployment.yaml`
+  - **Talking points:** What students should understand from this scenario
+
+- **`deployment.yaml`** (or `Chart.yaml` + `values.yaml` for Helm)
+  - **Starts in broken state** — Deploy it, watch it fail
+  - **Clear comments** marking the problem area with `❌` symbols
+  - **Include context** showing both problem and solution (for reference after recording)
+
+---
+
+## AWS EC2 Setup Prerequisites
+
+For team training or production-like testing:
+
+### Infrastructure
+- **Instance Type:** t3.2xlarge (8 vCPU, 32 GB RAM)
+- **Storage:** 30 GB gp3
+- **OS:** Amazon Linux 2 or 2023
+- **Security Groups:** Allow ports 8080 (app), 6443 (k8s API)
+
+### Setup (Run Once)
+```bash
+cd course-admin
+sudo bash setup.sh        # Detects OS and installs Docker, kubectl, kind
+make build DOCKER_HUB_USER=local   # Build the scenario app image
+```
+
+The setup.sh script automatically handles both Ubuntu and Amazon Linux—no extra steps needed.
+
+---
+
+## Debugging Philosophy: Keep It Real
+
+All scenarios emphasize **realistic, live debugging workflow**:
+
+✅ **DO:** Use simple commands students can type and copy  
+✅ **DO:** Show the actual pod/resource names you see in the output  
+✅ **DO:** Edit manifests live in vim/sed/nano (messy is okay, it's real)  
+✅ **DO:** Use grep and search to find lines before editing  
+✅ **DO:** Show copy-paste mistakes and how to fix them (students learn recovery)  
+
+❌ **DON'T:** Use complex one-liners with command substitution  
+❌ **DON'T:** Script commands that look like magic (defeats the purpose)  
+❌ **DON'T:** Hide the debugging process (show your thinking!)  
+❌ **DON'T:** Over-engineer the examples  
+
+**Example:**
+```bash
+# ✅ Real-world debugging
+kubectl get pods
+# Copy pod name: oom-demo-xxxxx
+kubectl describe pod oom-demo-xxxxx
+# Read output, identify issue, edit file
+vim deployment.yaml
+kubectl apply -f deployment.yaml
+
+# ❌ Unnecessarily complex
+kubectl describe pod $(kubectl get pods -l app=oom-demo -o jsonpath='{.items[0].metadata.name}')
+```
 
 ---
 
 ## Next Steps
-1. ✅ ~~Scaffold `course-admin/` (Dockerfile, Python app, Makefile).~~ **DONE** — folder exists with Dockerfile, Makefile, app/main.py, and .dockerignore
-2. Build and push the custom image.
-3. Create all 20 folders with `broken/`, `fixed/`, `README.md`, `DEBUG.md`.
-4. Test every scenario end-to-end on Rancher Desktop (and Kind for #19).
+1. ✅ Scaffold `course-admin/` — **DONE**
+2. ✅ Setup scripts for AWS EC2 — **DONE**
+3. ✅ Scenario 01 restructured — **DONE**
+4. Create scenarios 02–20 following the same pattern:
+   - Single `deployment.yaml` (or `Chart.yaml`) starting in broken state
+   - `README.md` with clear problem description
+   - `DEBUG.md` with simple, copy-paste kubectl commands (no one-liners)
+   - `Makefile` for optional quick shortcuts
+   - Comments marking the problem area in the manifest
+5. Test each scenario end-to-end on AWS EC2 t3.2xlarge
+6. Record videos showing **realistic live debugging** — students learn how you actually think through problems
