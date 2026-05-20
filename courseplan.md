@@ -152,7 +152,7 @@ Every folder contains:
 ---
 
 ## Next Steps
-1. Scaffold `course-admin/` (Dockerfile, Go app, Makefile).
+1. ✅ ~~Scaffold `course-admin/` (Dockerfile, Python app, Makefile).~~ **DONE** — folder exists with Dockerfile, Makefile, app/main.py, and .dockerignore
 2. Build and push the custom image.
 3. Create all 20 folders with `broken/`, `fixed/`, `README.md`, `DEBUG.md`.
 4. Test every scenario end-to-end on Rancher Desktop (and Kind for #19).
