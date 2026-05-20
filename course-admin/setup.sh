@@ -8,6 +8,20 @@ IMAGE_NAME="k8s-debug-app"
 IMAGE_TAG="${IMAGE_TAG:-v1}"
 IMAGE="${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
 
+# Detect OS
+detect_os() {
+  if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+    echo "${ID}"
+  elif [[ -f /etc/redhat-release ]]; then
+    echo "rhel"
+  elif [[ -f /etc/debian_version ]]; then
+    echo "debian"
+  else
+    echo "unknown"
+  fi
+}
+
 info() {
   printf "\e[1;34m[INFO]\e[0m %s\n" "$1"
 }
@@ -35,21 +49,38 @@ install_docker() {
     error "Docker installation requires sudo/root access. Run: sudo $0"
   fi
 
-  info "Installing Docker Engine..."
-  apt-get update -qq
-  apt-get install -y --no-install-recommends ca-certificates curl gnupg lsb-release
+  local os_type=$(detect_os)
+  info "Installing Docker Engine on ${os_type}..."
 
-  mkdir -p /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  chmod 644 /etc/apt/keyrings/docker.gpg
+  case "${os_type}" in
+    amzn|rhel|fedora|almalinux|rocky)
+      # Amazon Linux, RHEL, Fedora, AlmaLinux, Rocky Linux
+      yum update -y
+      yum install -y docker
+      systemctl start docker
+      systemctl enable docker
+      ;;
+    ubuntu|debian)
+      # Ubuntu, Debian
+      apt-get update -qq
+      apt-get install -y --no-install-recommends ca-certificates curl gnupg lsb-release
 
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" \
-    > /etc/apt/sources.list.d/docker.list
+      mkdir -p /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      chmod 644 /etc/apt/keyrings/docker.gpg
 
-  apt-get update -qq
-  apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) stable" \
+        > /etc/apt/sources.list.d/docker.list
+
+      apt-get update -qq
+      apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      ;;
+    *)
+      error "Unsupported OS: ${os_type}. Please install Docker manually."
+      ;;
+  esac
 
   info "Docker installation complete"
 }
