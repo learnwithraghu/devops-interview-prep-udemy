@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: local/k8s-debug-app
+  tag: v1
+  pullPolicy: Never
+
+service:
+  type: ClusterIP
+  port: 8080
+
+initContainer:
+  enabled: true
+  image: busybox:latest
+  command: ["sh", "-c", "nc -z data-api 8080 || exit 1"]

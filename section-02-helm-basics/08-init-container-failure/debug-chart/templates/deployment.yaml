@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: init-container-demo
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: init-container-demo
+  template:
+    metadata:
+      labels:
+        app: init-container-demo
+    spec:
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+        - name: wait-for-api
+          image: {{ .Values.initContainer.image }}
+          command: {{ toYaml .Values.initContainer.command | nindent 10 }}
+      {{- end }}
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
