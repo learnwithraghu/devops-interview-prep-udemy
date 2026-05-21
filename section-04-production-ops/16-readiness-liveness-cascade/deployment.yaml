@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-demo
+  labels:
+    app: db-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-demo
+  template:
+    metadata:
+      labels:
+        app: db-demo
+    spec:
+      containers:
+        - name: db
+          image: local/k8s-debug-app:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: FAIL_START
+              value: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-demo
+  labels:
+    app: db-demo
+spec:
+  selector:
+    app: db-demo
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cascade-demo
+  labels:
+    app: cascade-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cascade-demo
+  template:
+    metadata:
+      labels:
+        app: cascade-demo
+    spec:
+      containers:
+        - name: app
+          image: local/k8s-debug-app:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - wget -q -O- http://db-demo:8080/health || exit 1
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cascade-demo
+  labels:
+    app: cascade-demo
+spec:
+  selector:
+    app: cascade-demo
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,8 @@
+apiVersion: v2
+name: debug-chart
+description: A debug chart for scenario 09
+version: 0.1.0
+dependencies:
+  - name: app-component
+    version: 0.2.0
+    repository: file://../app-component

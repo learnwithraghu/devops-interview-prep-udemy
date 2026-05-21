@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quota-demo
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota-demo
+  namespace: quota-demo
+spec:
+  hard:
+    requests.cpu: "500m"
+    requests.memory: 512Mi
+    pods: "2"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: quota-demo-limits
+  namespace: quota-demo
+spec:
+  limits:
+    - default:
+        cpu: 500m
+        memory: 256Mi
+      defaultRequest:
+        cpu: 250m
+        memory: 128Mi
+      type: Container
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quota-demo
+  namespace: quota-demo
+  labels:
+    app: quota-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: quota-demo
+  template:
+    metadata:
+      labels:
+        app: quota-demo
+    spec:
+      containers:
+        - name: app
+          image: local/k8s-debug-app:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

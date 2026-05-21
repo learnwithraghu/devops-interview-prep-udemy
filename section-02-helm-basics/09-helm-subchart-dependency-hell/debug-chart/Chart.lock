@@ -1,0 +1,6 @@
+dependencies:
+- name: app-component
+  repository: file://../app-component
+  version: 0.1.0
+digest: sha256:8f4e2a1b9c3d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f
+generated: "2026-05-15T10:00:00.000000+00:00"

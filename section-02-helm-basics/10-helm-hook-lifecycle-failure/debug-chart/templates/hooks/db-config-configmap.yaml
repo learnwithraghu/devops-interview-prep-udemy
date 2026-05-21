@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hook-demo-db-config
+  annotations:
+    helm.sh/hook: pre-install
+    helm.sh/hook-weight: "{{ .Values.hooks.dbConfig.weight }}"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+data:
+  migration.sql: |
+    CREATE TABLE users (id INT);

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: app-component
+description: Application subchart for scenario 09
+type: application
+version: 0.2.0
