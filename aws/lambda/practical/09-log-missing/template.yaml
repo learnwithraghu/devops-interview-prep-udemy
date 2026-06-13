@@ -1,0 +1,42 @@
+# CloudFormation template for a Lambda lacking CloudWatch Logs permission (log missing scenario)
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a Lambda that intentionally lacks permission to write to CloudWatch Logs.
+Resources:
+  # IAM role WITHOUT the AWSLambdaBasicExecutionRole (no logs permission)
+  BadLogRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      # No ManagedPolicyArn for logs
+      Policies:
+        - PolicyName: MinimalPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: '*'
+  BadLogLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: BadLogLambda
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Role: !GetAtt BadLogRole.Arn
+      Timeout: 5
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            console.log('This log should not appear because of missing permissions.');
+            return { statusCode: 200, body: 'OK' };
+          };
+Outputs:
+  LambdaArn:
+    Value: !GetAtt BadLogLambda.Arn

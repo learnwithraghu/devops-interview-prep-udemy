@@ -1,0 +1,119 @@
+# CloudFormation template for a Lambda that accesses a VPC‑only RDS instance securely
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a VPC, private subnet, security group, an RDS (MySQL) instance, and a Lambda function with VPC access and least‑privilege IAM role.
+Resources:
+  DemoVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: LambdaVPC
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DemoVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '' ]
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: LambdaPrivateSubnet
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS instance
+      SubnetIds:
+        - !Ref PrivateSubnet
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow Lambda to connect to RDS
+      VpcId: !Ref DemoVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Lambda function
+      VpcId: !Ref DemoVPC
+
+  DemoRDSInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      DBInstanceIdentifier: demo-rds
+      Engine: mysql
+      MasterUsername: admin
+      MasterUserPassword: "Password123!"
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+
+  SecureLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: SecureVPCLambda
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          const mysql = require('mysql2/promise');
+          exports.handler = async (event) => {
+            const connection = await mysql.createConnection({
+              host: process.env.RDS_ENDPOINT,
+              user: process.env.RDS_USER,
+              password: process.env.RDS_PASSWORD,
+              database: 'testdb'
+            });
+            const [rows] = await connection.execute('SELECT NOW() as now');
+            await connection.end();
+            return { statusCode: 200, body: JSON.stringify(rows[0]) };
+          };
+      Timeout: 10
+      MemorySize: 256
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet
+      Environment:
+        Variables:
+          RDS_ENDPOINT: !GetAtt DemoRDSInstance.Endpoint.Address
+          RDS_USER: admin
+          RDS_PASSWORD: "Password123!"
+
+Outputs:
+  LambdaArn:
+    Description: ARN of the secure Lambda function
+    Value: !GetAtt SecureLambda.Arn
+  RDSInstanceEndpoint:
+    Description: Endpoint address of the RDS instance
+    Value: !GetAtt DemoRDSInstance.Endpoint.Address

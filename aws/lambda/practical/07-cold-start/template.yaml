@@ -1,0 +1,50 @@
+# CloudFormation template for Java Lambda with Provisioned Concurrency (Cold Start Demo)
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a Java Lambda function with provisioned concurrency to demonstrate cold start mitigation.
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  JavaDemoFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: JavaColdStartDemo
+      Handler: com.example.Handler::handleRequest
+      Runtime: java21
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          package com.example;
+          import com.amazonaws.services.lambda.runtime.Context;
+          import com.amazonaws.services.lambda.runtime.RequestHandler;
+          public class Handler implements RequestHandler<Object, String> {
+            public String handleRequest(Object input, Context context) {
+              return "Hello from Java Lambda!";
+            }
+          }
+      Timeout: 10
+      MemorySize: 512
+
+  ProvisionedConcurrencyConfig:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref JavaDemoFunction
+      FunctionVersion: !GetAtt JavaDemoFunction.Version
+      Name: live
+      ProvisionedConcurrentExecutions: 5
+
+Outputs:
+  FunctionArn:
+    Value: !GetAtt JavaDemoFunction.Arn
+  AliasArn:
+    Value: !GetAtt ProvisionedConcurrencyConfig.AliasArn

@@ -24,11 +24,18 @@ docker system df
 ```
 *Thoughts to share:* "First, I'll run `docker system df` to see if the disk space is being consumed by images, volumes, or container writable layers. It looks like the 'Containers' size is unusually high."
 
-**Step 2: Find the offending container**
+**Step 2: Find the offending container (simplified)**
 ```bash
-docker ps -q | xargs -I {} docker inspect -s {} | grep -E "Name|SizeRw"
+# List container IDs
+docker ps -q > /tmp/container_ids.txt
+# Iterate and show each name with its writable size
+while read cid; do
+  name=$(docker inspect -f '{{.Name}}' $cid)
+  size=$(docker inspect -s $cid --format '{{.SizeRw}}')
+  echo "${name}: ${size}"
+done < /tmp/container_ids.txt
 ```
-*Thoughts to share:* "Now I need to find *which* container is bloating. I'll inspect the `SizeRw` (Size Read/Write layer) for all running containers. Ah, the API container is huge."
+*Thoughts to share:* "By looping over each container individually I can see the name and its writable layer size in a clean list, making it easy to spot the outlier."
 
 **Step 3: Investigate inside the container**
 ```bash

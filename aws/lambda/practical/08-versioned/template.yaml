@@ -1,0 +1,56 @@
+# CloudFormation template for a versioned Lambda with an alias (blue‑green demo)
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy a Lambda function, publish a new version, and create an alias for blue‑green deployments.
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  VersionedFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: DemoVersionedLambda
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            const version = process.env.AWS_LAMBDA_FUNCTION_VERSION || 'unpublished';
+            return {
+              statusCode: 200,
+              body: JSON.stringify({ message: `Hello from version ${version}` })
+            };
+          };
+      Timeout: 5
+      MemorySize: 128
+
+  FunctionVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref VersionedFunction
+
+  LiveAlias:
+    Type: AWS::Lambda::Alias
+    Properties:
+      FunctionName: !Ref VersionedFunction
+      FunctionVersion: !GetAtt FunctionVersion.Version
+      Name: live
+      RoutingConfig:
+        AdditionalVersionWeights:
+          - FunctionVersion: !GetAtt FunctionVersion.Version
+            FunctionWeight: 0.0
+Outputs:
+  FunctionArn:
+    Value: !GetAtt VersionedFunction.Arn
+  AliasArn:
+    Value: !GetAtt LiveAlias.AliasArn
