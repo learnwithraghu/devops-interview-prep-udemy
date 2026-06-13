@@ -4,13 +4,32 @@ name: "07 Reusable – Caller Workflow"
 on:
   workflow_dispatch:
 
+# ---------------------------------------------------------------
+# In a real-world org, these 3 jobs would live in 3 separate repos,
+# each calling the same shared workflow. Here we simulate all 3
+# in one file so you can see them fan out in parallel in the UI.
+# ---------------------------------------------------------------
 jobs:
-  call-reusable:
-    name: "Call the shared build workflow"
-    # Uses the reusable workflow in the same repository.
-    # In a real org setup, this would point to:
-    # org/shared-workflows/.github/workflows/build.yml@main
+
+  auth-service:
+    name: "Build auth-service (Node 18)"
+    # All 3 jobs call the SAME reusable workflow file.
+    # Only the inputs differ — this is the core benefit of reusable workflows.
+    uses: ./.github/workflows/07-reusable-build.yml
+    with:
+      node-version: "18"
+      run-label: "auth-service"
+
+  payment-service:
+    name: "Build payment-service (Node 20)"
     uses: ./.github/workflows/07-reusable-build.yml
     with:
       node-version: "20"
-      run-label: "demo-microservice"
+      run-label: "payment-service"
+
+  notification-service:
+    name: "Build notification-service (Node 16)"
+    uses: ./.github/workflows/07-reusable-build.yml
+    with:
+      node-version: "16"
+      run-label: "notification-service"
