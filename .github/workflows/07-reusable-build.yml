@@ -1,0 +1,48 @@
+name: "07 Reusable – Build & Test (Called)"
+
+# This workflow can ONLY be triggered by another workflow calling it.
+# It cannot be run directly from the UI.
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "The version of Node.js to use"
+        required: false
+        default: "18"
+        type: string
+      run-label:
+        description: "A label to display in the logs, e.g. the service name"
+        required: false
+        default: "my-service"
+        type: string
+
+jobs:
+  build-and-test:
+    name: "Build & Test (${{ inputs.run-label }})"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Simulate install
+        run: |
+          echo "=== Installing dependencies for ${{ inputs.run-label }} ==="
+          echo "npm install would run here in a real project."
+
+      - name: Simulate tests
+        run: |
+          echo "=== Running tests for ${{ inputs.run-label }} on Node ${{ inputs.node-version }} ==="
+          echo "npm test would run here in a real project."
+          echo "All tests passed ✅"
+
+      - name: Simulate Docker build
+        run: |
+          echo "=== Building Docker image for ${{ inputs.run-label }} ==="
+          echo "docker build -t ${{ inputs.run-label }}:latest . would run here."
+          echo "Image built successfully ✅"

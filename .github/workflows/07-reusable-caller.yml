@@ -1,0 +1,16 @@
+name: "07 Reusable – Caller Workflow"
+
+# Manually trigger from the Actions tab (UI: Run workflow button)
+on:
+  workflow_dispatch:
+
+jobs:
+  call-reusable:
+    name: "Call the shared build workflow"
+    # Uses the reusable workflow in the same repository.
+    # In a real org setup, this would point to:
+    # org/shared-workflows/.github/workflows/build.yml@main
+    uses: ./.github/workflows/07-reusable-build.yml
+    with:
+      node-version: "20"
+      run-label: "demo-microservice"
