@@ -1,0 +1,64 @@
+{
+  "info": {
+    "name": "08 - Auth Token Expiry",
+    "_postman_id": "08-auth-token-expiry",
+    "description": "Demonstrates a pre-request script that auto-fetches a token. BUG: the variable name stored by the script (authToken) does not match the variable used in the request (auth_token).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /bearer (Protected Endpoint)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Simulates fetching a fresh token from an auth server.",
+              "// In a real scenario, this would be a pm.sendRequest() to your /auth/token endpoint.",
+              "var fakeToken = 'abc-fake-jwt-token-xyz';",
+              "",
+              "// BUG: Variable stored as 'authToken' (camelCase)",
+              "// but the request Authorization header uses '{{auth_token}}' (snake_case)",
+              "pm.environment.set('authToken', fakeToken);",
+              "",
+              "console.log('Token fetched and stored:', fakeToken);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is authenticated', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.authenticated).to.be.true;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{auth_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://httpbin.org/bearer",
+          "protocol": "https",
+          "host": ["httpbin", "org"],
+          "path": ["bearer"]
+        }
+      }
+    }
+  ]
+}

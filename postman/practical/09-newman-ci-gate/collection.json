@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "09 - Newman CI Gate",
+    "_postman_id": "09-newman-ci-gate",
+    "description": "A collection with one passing and one deliberately failing test — to demonstrate that Newman exits with code 1 when tests fail, and that CI scripts must check this exit code.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Todo (PASSING test)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has id', function () {",
+              "    pm.expect(pm.response.json().id).to.eql(1);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/todos/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["todos", "1"]
+        }
+      }
+    },
+    {
+      "name": "GET Post (FAILING test - simulates contract violation)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// This test deliberately fails to demonstrate Newman exit code 1.",
+              "// The post endpoint returns userId, id, title, body — NOT 'description'.",
+              "pm.test('INTENTIONAL FAIL: Response has description field (contract check)', function () {",
+              "    pm.expect(pm.response.json().description).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts", "1"]
+        }
+      }
+    }
+  ]
+}

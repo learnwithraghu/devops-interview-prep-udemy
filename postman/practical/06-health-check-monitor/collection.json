@@ -1,0 +1,115 @@
+{
+  "info": {
+    "name": "06 - Health Check Monitor",
+    "_postman_id": "06-health-check-monitor",
+    "description": "DevOps/SRE health check collection. Two requests pass. One has a deliberately broken assertion to demonstrate debugging in the Test Results tab.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Todo (Health Check)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response time is under 1000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+              "});",
+              "",
+              "pm.test('Response has id field', function () {",
+              "    pm.expect(pm.response.json().id).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/todos/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["todos", "1"]
+        }
+      }
+    },
+    {
+      "name": "GET User (Readiness Check)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has email field', function () {",
+              "    pm.expect(pm.response.json().email).to.exist;",
+              "});",
+              "",
+              "pm.test('Response has username field', function () {",
+              "    pm.expect(pm.response.json().username).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/users/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["users", "1"]
+        }
+      }
+    },
+    {
+      "name": "GET Post (BROKEN TEST - find the bug)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has title field', function () {",
+              "    pm.expect(pm.response.json().title).to.exist;",
+              "});",
+              "",
+              "// BUG: This field does not exist in the API response.",
+              "// The API returns: id, userId, title, body",
+              "// Fix: change 'description' to 'body'",
+              "pm.test('Response has description field', function () {",
+              "    pm.expect(pm.response.json().description).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/posts/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["posts", "1"]
+        }
+      }
+    }
+  ]
+}

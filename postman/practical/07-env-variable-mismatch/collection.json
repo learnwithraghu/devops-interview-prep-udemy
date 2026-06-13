@@ -1,0 +1,68 @@
+{
+  "info": {
+    "name": "07 - Env Variable Mismatch",
+    "_postman_id": "07-env-variable-mismatch",
+    "description": "Collection using {{base_url}} variable. Works in Dev, fails in Staging due to wrong base_url value.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Todo via {{base_url}}",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has id field', function () {",
+              "    pm.expect(pm.response.json().id).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/todos/1",
+          "host": ["{{base_url}}"],
+          "path": ["todos", "1"]
+        }
+      }
+    },
+    {
+      "name": "GET User via {{base_url}}",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has email field', function () {",
+              "    pm.expect(pm.response.json().email).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/users/1",
+          "host": ["{{base_url}}"],
+          "path": ["users", "1"]
+        }
+      }
+    }
+  ]
+}

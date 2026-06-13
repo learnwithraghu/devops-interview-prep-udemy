@@ -1,0 +1,90 @@
+{
+  "info": {
+    "name": "10 - Contract Testing",
+    "_postman_id": "10-contract-testing",
+    "description": "Consumer-driven contract tests. The v1 check passes. The v2 'breaking change' check fails because the upstream team renamed a field from 'phone_number' to 'phone'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET /users/1 (v1 - stable contract check)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// These are the fields our service depends on from the Users API.",
+              "// All of these exist in the current API response.",
+              "pm.test('Consumer contract: response must have id', function () {",
+              "    pm.expect(pm.response.json().id).to.exist;",
+              "});",
+              "",
+              "pm.test('Consumer contract: response must have email', function () {",
+              "    pm.expect(pm.response.json().email).to.exist;",
+              "});",
+              "",
+              "pm.test('Consumer contract: response must have username', function () {",
+              "    pm.expect(pm.response.json().username).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/users/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["users", "1"]
+        }
+      }
+    },
+    {
+      "name": "GET /users/1 (v2 - breaking change simulation)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// SCENARIO: The upstream team renamed 'phone_number' to 'phone' in their v2 API.",
+              "// Our consumer contract still expects 'phone_number'.",
+              "// This test DELIBERATELY FAILS to simulate detecting the breaking change.",
+              "//",
+              "// Fix: change 'phone_number' to 'phone' in the assertion below.",
+              "pm.test('Consumer contract: response must have phone_number field', function () {",
+              "    pm.expect(pm.response.json().phone_number).to.exist;",
+              "});",
+              "",
+              "// This one also passes — shows the old field name changed",
+              "pm.test('Checking actual response — phone field exists (not phone_number)', function () {",
+              "    pm.expect(pm.response.json().phone).to.exist;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/users/1",
+          "protocol": "https",
+          "host": ["jsonplaceholder", "typicode", "com"],
+          "path": ["users", "1"]
+        }
+      }
+    }
+  ]
+}
