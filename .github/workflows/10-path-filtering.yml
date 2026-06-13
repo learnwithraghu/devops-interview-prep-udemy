@@ -1,0 +1,18 @@
+name: 10 Path Filtering
+
+on:
+  push:
+    paths:
+      - 'docker/**'
+      - '.github/workflows/10-path-filtering.yml'
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dummy Build
+        run: echo "Building Docker image because files in docker/ changed."
