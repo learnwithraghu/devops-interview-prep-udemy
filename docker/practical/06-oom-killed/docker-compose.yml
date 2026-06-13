@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  api:
+    build: 
+      context: ../shared-app
+    ports:
+      - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 50M

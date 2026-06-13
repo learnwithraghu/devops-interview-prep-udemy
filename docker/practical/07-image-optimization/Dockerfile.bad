@@ -1,0 +1,13 @@
+# Bad Dockerfile
+FROM ubuntu:20.04
+
+RUN apt-get update
+RUN apt-get install -y curl nodejs npm
+RUN apt-get install -y vim git wget
+
+COPY ../shared-app/ /app/
+WORKDIR /app
+
+RUN npm install
+
+CMD ["node", "src/app.js"]

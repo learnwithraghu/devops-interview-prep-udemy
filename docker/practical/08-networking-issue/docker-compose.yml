@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: ../shared-app
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+    networks:
+      - api_network
+
+  redis:
+    image: redis:alpine
+    networks:
+      - db_network
+
+networks:
+  api_network:
+  db_network:
