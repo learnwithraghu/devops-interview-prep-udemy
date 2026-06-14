@@ -3,11 +3,13 @@
 Welcome! If you are an AI agent or a language model operating in this repository, this document outlines the core vision of this project.
 
 ## Project Vision
+
 This repository is a comprehensive, hands-on interview preparation guide for DevOps engineers. It covers multiple technologies (Kubernetes, Docker, Terraform, AWS, Jenkins, GitHub Actions, Linux) and splits the learning into two distinct phases: **Theory** and **Practical Scenarios**. 
 
 The goal of the practical scenarios is to simulate real-world, broken environments that the student must troubleshoot and fix live, mirroring a technical interview.
 
 ## Agent Skills
+
 To ensure consistency, the strict formatting rules and conventions for this repository have been modularized into Agent Skills. When operating in this repository, you **MUST** automatically utilize these skills:
 
 - **Repository Structure:** Defines the required directory layout and the format for `questions_list.md`. (Symlinked to `repository-structure.md`)
@@ -15,3 +17,13 @@ To ensure consistency, the strict formatting rules and conventions for this repo
 - **Content Creation:** Outlines the core philosophy (e.g., keeping broken states realistic, not giving away answers). (Symlinked to `content-creation.md`)
 
 *Note for humans:* The skills are physically located in the `.agent/skills/` directory. For convenience, symlinks have been provided below in the repository root.
+
+## Illustration Assets for Theory Guides
+
+When a `guide.md` is generated for a Theory Question, an **assets** folder should be created alongside the guide (or within the same topic directory). The folder must contain the SVG and Excalidraw JSON files produced by the `metaphor-illustrator` skill.
+
+- Asset path example: `nginx/theory/01-what-is-nginx/assets/01-concept.svg`
+- Keep the same base name as the illustration index (`01`, `02`, …) and use the appropriate extension (`.svg` or `.excalidraw.json`).
+- The `agents.md` file now mandates that any AI agent creating a `guide.md` automatically triggers the `metaphor-illustrator` skill and stores the results in this assets folder.
+
+The `metaphor-illustrator` skill definition lives in `.agent/skills/metaphor-illustrator/` and can be invoked by any Codex‑compatible AI agent.

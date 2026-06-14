@@ -1,0 +1,17 @@
+<svg width="1024" height="576" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="576" fill="white"/>
+  <!-- House for web server -->
+  <path d="M200,400 L200,300 L250,250 L300,300 L300,400 Z" stroke="black" fill="none" stroke-width="2"/>
+  <text x="250" y="380" font-family="sans-serif" font-size="24" text-anchor="middle" fill="black">Web Server</text>
+  <!-- Gate for reverse proxy -->
+  <rect x="450" y="300" width="80" height="100" stroke="black" fill="none" stroke-width="2"/>
+  <line x1="460" y1="300" x2="460" y2="400" stroke="black" stroke-width="2"/>
+  <line x1="530" y1="300" x2="530" y2="400" stroke="black" stroke-width="2"/>
+  <text x="490" y="380" font-family="sans-serif" font-size="24" text-anchor="middle" fill="black">Reverse Proxy</text>
+  <!-- Traffic light for load balancer -->
+  <rect x="700" y="300" width="40" height="120" stroke="black" fill="none" stroke-width="2"/>
+  <circle cx="720" cy="330" r="12" fill="red"/>
+  <circle cx="720" cy="360" r="12" fill="orange"/>
+  <circle cx="720" cy="390" r="12" fill="green"/>
+  <text x="720" y="440" font-family="sans-serif" font-size="24" text-anchor="middle" fill="black">Load Balancer</text>
+</svg>

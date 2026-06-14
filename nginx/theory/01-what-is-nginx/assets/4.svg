@@ -1,0 +1,4 @@
+<svg width="1024" height="576" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="576" fill="white"/>
+  <text x="512" y="288" font-size="48" text-anchor="middle" fill="black">Placeholder $i</text>
+</svg>
