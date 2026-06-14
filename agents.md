@@ -32,6 +32,7 @@ When a `guide.md` is generated for a Theory Question, an **assets** folder shoul
 3. **Synchronize Udemy Video Name.** The guide must end with a `## Udemy Video Name` section that matches the short title used in the `Udemy Video Name` list of `questions_list.md`.
 4. **Create or update any code assets** required by the new question (e.g., workflow YAML files, scripts, CloudFormation templates). Reference these assets in the guide steps.
 5. **Cleanup obsolete resources.** If a question change renders existing code/assets unnecessary, delete or archive the related files to keep the repository tidy.
+5a. **Cross‑Reference Validation:** After editing any `questions_list.md`, automatically verify that each practical folder and each workflow file has a matching entry. If mismatches are found, raise a warning and require correction before committing.
 6. **Commit and push** the changes. No new practical‑scenario folders are to be created unless a brand‑new scenario number is introduced.
 7. **Folder naming consistency:** When a scenario’s focus changes (e.g., from “PR Secret Failure” to “Performance Benchmark”), rename the practical folder to reflect the new topic (e.g., `06‑performance‑benchmark`). This keeps the folder name aligned with the scenario description.
 

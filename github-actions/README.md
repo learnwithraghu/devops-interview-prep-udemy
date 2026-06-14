@@ -18,7 +18,7 @@ Inside each scenario folder in `practical/`, you will find a `workflow.yml` file
 
 ### Current Scenarios (Ordered by Difficulty)
 
-1. **`06-pr-secret-failure`**: (Debugging) A workflow that fails to authenticate on PRs from forks due to GitHub's security boundary on secrets.
+
 2. **`07-oidc-aws-auth`**: (Feature Demo) Demonstrates how to authenticate to AWS securely using OpenID Connect (OIDC) instead of long-lived static access keys.
 3. **`08-matrix-parallelization`**: (Feature Demo) Shows how to drastically speed up sequential tests by fanning them out into parallel jobs across multiple OS and Node.js versions using `strategy: matrix`.
 4. **`09-environment-setup`**: (Feature Demo) Demonstrates using `actions/setup-*` steps to guarantee a specific toolchain version (like Node v18) rather than relying on unpredictable runner defaults.
