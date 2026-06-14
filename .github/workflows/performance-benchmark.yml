@@ -1,0 +1,41 @@
+# 1. Build job
+name: Performance Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_benchmark:
+        description: 'Run the performance benchmark job?'
+        required: false
+        default: 'false'
+
+jobs:
+  # 1. Build
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1.1 Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      # 1.2 Build step
+      - name: Build step
+        run: echo "Building..."
+
+  # 2. Test
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # 2.1 Run tests
+      - name: Run tests
+        run: echo "Running tests..."
+
+  # 3. Benchmark
+  benchmark:
+    runs-on: ubuntu-latest
+    needs: test
+    if: ${{ inputs.run_benchmark == 'true' }}
+    steps:
+      # 3.1 Run performance benchmark
+      - name: Run performance benchmark
+        run: echo "Running benchmark..."
